@@ -8,7 +8,7 @@
 			previewText="This is my first post!"
 		/>
 
-			<PostPreview
+		<PostPreview
 			id="2"
 			:is-admin="isAdmin"
 			thumbnail="https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg"
@@ -16,7 +16,7 @@
 			previewText="This is my second post!"
 		/>
 
-			<PostPreview
+		<PostPreview
 			id="3"
 			:is-admin="isAdmin"
 			thumbnail="https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg"
@@ -28,7 +28,7 @@
 
 <script>
 import PostPreview from '@/components/Posts/PostPreview'
-
+	
 export default {
 	components: { PostPreview },
 

@@ -1,16 +1,21 @@
 <template>
   <div class="input-control">
     <label><slot /></label>
-    <input
+	<input
       v-if="controlType === 'input'"
       v-bind="$attrs"
       :value="value"
-      @input="$emit('input', $event.target.value)">
-    <textarea
+      @input="$emit('input', $event.target.value)"
+	>
+	<textarea
       v-if="controlType === 'textarea'"
       rows="10"
       :value="value"
-      @input="$emit('input', $event.target.value)"></textarea>
+      @input="$emit('input', $event.target.value)"
+		v-bind="$attrs"
+		
+	></textarea>
+		<!-- sa v-bind="$attrs" mozemo na mestu gde je ova componenta pozvana stavimo placeholder="koji_god", ili bilo koji drugi atribut, bajndujemo ga sa v-bind="$attrs" -->
   </div>
 </template>
 
