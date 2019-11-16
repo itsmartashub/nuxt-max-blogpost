@@ -30,23 +30,30 @@ export default {
 		return axios.get(`https://nuxt-max-blogpost.firebaseio.com/posts/${context.params.postId}.json`)
 			.then(res => {
 				return {
-					loadedPost: res.data
+					loadedPost: {...res.data, id: context.params.postId} // i dodajemo id u nasu realtime database sa context.params.postId
 				}
 			})
 			.catch(e => context.error(e))
 	},
 
 	methods: {
-		onSubmitted(editedPost) { // ovde sada id ne idemo preko context.params.id (kao preko SSR u asyncData) vec smo sad u normal vue worldu, dakle na client sajtu, i sada mozemo da koristim this.$route itd itd
-			axios.put(`https://nuxt-max-blogpost.firebaseio.com/posts/${this.$route.params.postId}.json`, {
-				...editedPost,
-				updatedDate: new Date()
-			}) // saljemo put rikvest a ne post jer za edit hocemo da se prethodni post koji editujemo obrise a ostane sad ovo novo editovano
-			.then(res => {
-				// console.log(res)
-				this.$router.push('/admin')
-			})
-			.catch(e => console.log(e))
+		// onSubmitted(editedPost) { // ovde sada id ne idemo preko context.params.id (kao preko SSR u asyncData) vec smo sad u normal vue worldu, dakle na client sajtu, i sada mozemo da koristim this.$route itd itd
+		// 	axios.put(`https://nuxt-max-blogpost.firebaseio.com/posts/${this.$route.params.postId}.json`, {
+		// 		...editedPost,
+		// 		updatedDate: new Date()
+		// 	}) // saljemo put rikvest a ne post jer za edit hocemo da se prethodni post koji editujemo obrise a ostane sad ovo novo editovano
+		// 	.then(res => {
+		// 		// console.log(res)
+		// 		this.$router.push('/admin')
+		// 	})
+		// 	.catch(e => console.log(e))
+		// }
+
+		onSubmitted(editedPost) {
+			this.$store.dispatch('EDIT_POST', editedPost)
+				.then(() => {
+					this.$router.push('/admin')
+				})
 		}
 	},
 }

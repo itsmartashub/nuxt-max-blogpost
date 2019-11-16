@@ -13,6 +13,17 @@ const getters = {
 const mutations = {
 	SET_POSTS(state, posts) { // posts je Array
 		state.loadedPosts = posts
+	},
+
+	ADD_POST(state, post) {
+		state.loadedPosts.push(post)
+	},
+	
+	EDIT_POST(state, editedPost) {
+		// replace existing post with updated version, dakle prvo moramo da nadjemo index postojeceg posta i loadedPosts nizu:
+		const postIndex = state.loadedPosts.findIndex(post => post.id === editedPost)
+		state.loadedPosts[postIndex] = editedPost // i kad smo nasli u loadedPosts nizu post sa trazecim indexom, onda ga selektujemo sa state.loadedPosts[postIndex] i stavljamo da je jednak ovom editovanom postu
+
 	}
 }
 
@@ -69,6 +80,37 @@ const actions = {
 
 	SET_POSTS(vuexContext, posts) { // moze i context al kao da ne bude zbunjujuce moze i vuexContext
 		vuexContext.commit('SET_POSTS', posts)
+	},
+
+	ADD_POST(vuexContext, postData) {
+		const createdPost = {
+			...postData, // ovo je iz forme AdminPostForm
+			updatedDate: new Date()
+		}
+		
+		return axios.post('https://nuxt-max-blogpost.firebaseio.com/posts.json', createdPost) // kopiramo adresu iz firebase iz realtime databse i dodajemo na kraju ime node-a koje zelimo, recimo posts, ali moramo i da dodamo ekstenziju .json. drugi argument su podaci koje zelimo da posaljemo ovim rikvestom na tu adresu. onda imamo then() blok jer axios vraca Promise.
+				// dodajemo spread operator kod postData da bismo mogli dodati novi obj tj updatedDate: new Date()
+				.then(res => {
+					// console.log(res)
+					vuexContext.commit('ADD_POST', { ...createdPost, id: res.data.name })
+					// this.$router.push('/admin') // ovo vise ovako nece raditi, alio mozemo da dodamo return gore ispred axios, i da onda idemo u pages/new-post/index.vue, dispatcujemo ovaj action ADD_POST i posto on vraca axios, a axios promise, mozemo da chainujemo dalje then() i u taj then() stavimo this.$router.push('/admin')
+				})
+				.catch(e => console.log(e))
+
+	},
+
+	EDIT_POST(vuexContext, editedPost) {
+		const createdPost = {
+			...editedPost, // ovo je iz forme AdminPostForm
+			updatedDate: new Date()
+		}
+		return axios.put(`https://nuxt-max-blogpost.firebaseio.com/posts/${editedPost.id}.json`, createdPost) // saljemo put rikvest a ne post jer za edit hocemo da se prethodni post koji editujemo obrise a ostane sad ovo novo editovano
+			.then(res => {
+				// console.log(res)
+				vuexContext.commit('EDIT_POST', createdPost)
+				// this.$router.push('/admin')
+			})
+			.catch(e => console.log(e))
 	}
 }
 
