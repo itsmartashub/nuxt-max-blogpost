@@ -18,21 +18,33 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
-	asyncData(context, callback) {
-		setTimeout(() => {
-			callback(null, {
-				loadedPost: { // i sada je ovo loadedPost dostupno u nasoj komponenti zbog asyncData()
-					id: '1',
-					title: `Single post (ID: ${context.params.id})`, // ovo mu dodje kao this.$route.params.id, ali ovde naravno ne mozemo da koristimo this jer komponenta jos nije kreirana, mozemo i duzu verziju tj context.route.params.id
-					previewText: 'This is out one single post!',
-					author: 'Maximilian',
-					updatedDate: new Date(),
-					thumbnail: 'https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg',
-					content: 'Some dummy text which is definitely not the preview text though!'
+	// asyncData(context, callback) {
+	// 	setTimeout(() => {
+	// 		callback(null, {
+	// 			loadedPost: { // i sada je ovo loadedPost dostupno u nasoj komponenti zbog asyncData()
+	// 				id: '1',
+	// 				title: `Single post (ID: ${context.params.id})`, // ovo mu dodje kao this.$route.params.id, ali ovde naravno ne mozemo da koristimo this jer komponenta jos nije kreirana, mozemo i duzu verziju tj context.route.params.id
+	// 				previewText: 'This is out one single post!',
+	// 				author: 'Maximilian',
+	// 				updatedDate: new Date(),
+	// 				thumbnail: 'https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg',
+	// 				content: 'Some dummy text which is definitely not the preview text though!'
+	// 			}
+	// 		})
+	// 	}, 1000);
+	// }
+
+	asyncData(context) {
+		return axios.get(`https://nuxt-max-blogpost.firebaseio.com/posts/${context.params.id}.json`)
+			.then(res => {
+				return {
+					loadedPost: res.data
 				}
 			})
-		}, 1000);
+			.catch(e => context.error(e))
 	}
 }
 </script>
