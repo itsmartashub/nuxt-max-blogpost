@@ -1,14 +1,14 @@
 <template>
 	<div class="single-post-page">
 		<section class="post">
-			<h1 class="title">Title of the Post</h1>
+			<h1 class="title">{{ loadedPost.title }}</h1>
 
 			<div class="post-details">
-				<div class="post-detail">Last updated on XXX</div>
-				<div class="post-detail">written by NAME</div>
+				<div class="post-detail">Last updated on {{ loadedPost.updatedDate }}</div>
+				<div class="post-detail">written by {{ loadedPost.author }}</div>
 			</div>
 
-			<p>Content of the post</p>
+			<p>{{ loadedPost.content }}</p>
 		</section>
 
 		<section class="post-feedback">
@@ -16,6 +16,26 @@
 		</section>
 	</div>
 </template>
+
+<script>
+export default {
+	asyncData(context, callback) {
+		setTimeout(() => {
+			callback(null, {
+				loadedPost: { // i sada je ovo loadedPost dostupno u nasoj komponenti zbog asyncData()
+					id: '1',
+					title: `Single post (ID: ${context.params.id})`, // ovo mu dodje kao this.$route.params.id, ali ovde naravno ne mozemo da koristimo this jer komponenta jos nije kreirana, mozemo i duzu verziju tj context.route.params.id
+					previewText: 'This is out one single post!',
+					author: 'Maximilian',
+					updatedDate: new Date(),
+					thumbnail: 'https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg',
+					content: 'Some dummy text which is definitely not the preview text though!'
+				}
+			})
+		}, 1000);
+	}
+}
+</script>
 
 <style scoped>
 	.single-post-page {
