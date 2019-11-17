@@ -65,7 +65,7 @@ const actions = {
 	// },
 
 	nuxtServerInit(vuexContext, context) {
-		return axios.get('https://nuxt-max-blogpost.firebaseio.com/posts.json')
+		return axios.get(`${process.env.baseUrl}/posts.json`)
 			.then(res => {
 				const postsArray = [] // definisemo postsArray kao niz, i onda lupujemo kroz sve keys u nasem data objektu koji se nalazi u res
 				for (const key in res.data) {
@@ -116,10 +116,11 @@ const actions = {
 
 
 const postModule = {
+	// namespaced: true,
 	state,
 	getters,
 	actions,
-	mutations
+	mutations,
 }
 
 export default postModule

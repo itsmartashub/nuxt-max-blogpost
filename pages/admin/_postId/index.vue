@@ -27,7 +27,7 @@ export default {
 	// },
  
 	asyncData(context) {
-		return axios.get(`https://nuxt-max-blogpost.firebaseio.com/posts/${context.params.postId}.json`)
+		return axios.get(`${process.env.baseUrl}/posts/${context.params.postId}.json`)
 			.then(res => {
 				return {
 					loadedPost: {...res.data, id: context.params.postId} // i dodajemo id u nasu realtime database sa context.params.postId
