@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 
 export default {
 	// asyncData(context, callback) {
@@ -38,10 +38,10 @@ export default {
 	// }
 
 	asyncData(context) {
-		return axios.get(`${process.env.baseUrl}/posts/${context.params.id}.json`)
-			.then(res => {
+		return context.app.$axios.$get(`/posts/${context.params.id}.json`)
+			.then(data => { // preko axios modules imamo samo data, a ne res pa u njemu data
 				return {
-					loadedPost: res.data
+					loadedPost: data
 				}
 			})
 			.catch(e => context.error(e))

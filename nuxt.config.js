@@ -49,10 +49,11 @@ export default {
   ** Nuxt.js modules
   */
   modules: [ //! https://github.com/nuxt-community/awesome-nuxt#modules. recimo da instaliramo axios modules npm install --save @nuxtjs/axios a ne ono to smo instalirali pa importovali npm install --save axios
-		'@nuxtjs/axios', // i sada mozemo da konfgurisemo axios ovde dole ispod sa property axios
+		'@nuxtjs/axios', //! i sada mozemo da konfgurisemo axios ovde dole ispod sa property axios
   ],
   axios: {
-	  baseURL: process.env.BASE_URL || 'https://nuxt-max-blogpost.firebaseio.com' // recimo da ovo smo vec uradili dole sa env, ali sada mozemo i ovako, dakle imamo dva nacina
+	  baseURL: process.env.BASE_URL || 'https://nuxt-max-blogpost.firebaseio.com', //! recimo da ovo smo vec uradili dole sa env, ali sada mozemo i ovako, dakle imamo dva nacina. sada mozemo da koristimo axios bilo gde bez importa sa this.$axios, osim u nuxtServerInit() i u asyncData() gde jos nije app registrovana, gde nemam f-ju this-a i to, i ne mozemo samo sa this.$axios vec context.app.$axios
+	  credentials: false // ovim necemo slati nikakve kukijeve i sl bekendu
   },
   /*
   ** Build configuration

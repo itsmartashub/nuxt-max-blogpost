@@ -1,4 +1,4 @@
-import axios from 'axios'
+// import axios from 'axios'
 
 const state = () => ({ //! kaze Nuxt da state treba da bude f-ja!!
 	loadedPosts: []
@@ -65,12 +65,14 @@ const actions = {
 	// },
 
 	nuxtServerInit(vuexContext, context) {
-		return axios.get(`${process.env.baseUrl}/posts.json`)
-			.then(res => {
+		return context.app.$axios
+			.$get('/posts.json') //! i sada mozemo da obrisemo ovo ${process.env.baseUrl} jer smo stavili u axios module baseURL i on automatski povlaci odatle adresu. primetimo da koristimo $get a ne get, i context.app.$axios a ne axios
+			.then(data => {
 				const postsArray = [] // definisemo postsArray kao niz, i onda lupujemo kroz sve keys u nasem data objektu koji se nalazi u res
-				for (const key in res.data) {
+				for (const key in data) {
 					// postsArray.push(res.data[key]) // mozemo i da storujemo i id posta tako sto dodamo spread operator: postsArray.push({ ...res.data[key] })
-					postsArray.push({ ...res.data[key], id: key })
+					//! i sada sa modules axios ne moramo da pristupamo data na res tj responsu, vec mozemo da pristupimo odmah data kao odgovor. i gde god imamo res ili res.data, stavljamo data samo
+					postsArray.push({ ...data[key], id: key })
 				}
 
 				vuexContext.commit('SET_POSTS', postsArray) // posto za SET_POSTS zahteva da podaci budu Array, moramo da konvertujemo data array
@@ -88,14 +90,15 @@ const actions = {
 			updatedDate: new Date()
 		}
 		
-		return axios.post('https://nuxt-max-blogpost.firebaseio.com/posts.json', createdPost) // kopiramo adresu iz firebase iz realtime databse i dodajemo na kraju ime node-a koje zelimo, recimo posts, ali moramo i da dodamo ekstenziju .json. drugi argument su podaci koje zelimo da posaljemo ovim rikvestom na tu adresu. onda imamo then() blok jer axios vraca Promise.
+		return this.$axios
+			.$post('/posts.json', createdPost) // kopiramo adresu iz firebase iz realtime databse i dodajemo na kraju ime node-a koje zelimo, recimo posts, ali moramo i da dodamo ekstenziju .json. drugi argument su podaci koje zelimo da posaljemo ovim rikvestom na tu adresu. onda imamo then() blok jer axios vraca Promise.
 				// dodajemo spread operator kod postData da bismo mogli dodati novi obj tj updatedDate: new Date()
-				.then(res => {
-					// console.log(res)
-					vuexContext.commit('ADD_POST', { ...createdPost, id: res.data.name })
-					// this.$router.push('/admin') // ovo vise ovako nece raditi, alio mozemo da dodamo return gore ispred axios, i da onda idemo u pages/new-post/index.vue, dispatcujemo ovaj action ADD_POST i posto on vraca axios, a axios promise, mozemo da chainujemo dalje then() i u taj then() stavimo this.$router.push('/admin')
-				})
-				.catch(e => console.log(e))
+			.then(data => {
+				// console.log(res)
+				vuexContext.commit('ADD_POST', { ...createdPost, id: data.name })
+				// this.$router.push('/admin') // ovo vise ovako nece raditi, alio mozemo da dodamo return gore ispred axios, i da onda idemo u pages/new-post/index.vue, dispatcujemo ovaj action ADD_POST i posto on vraca axios, a axios promise, mozemo da chainujemo dalje then() i u taj then() stavimo this.$router.push('/admin')
+			})
+			.catch(e => console.log(e))
 
 	},
 
@@ -104,7 +107,8 @@ const actions = {
 			...editedPost, // ovo je iz forme AdminPostForm
 			updatedDate: new Date()
 		}
-		return axios.put(`https://nuxt-max-blogpost.firebaseio.com/posts/${editedPost.id}.json`, createdPost) // saljemo put rikvest a ne post jer za edit hocemo da se prethodni post koji editujemo obrise a ostane sad ovo novo editovano
+		return this.$axios
+			.$put(`/posts/${editedPost.id}.json`, createdPost) // saljemo put rikvest a ne post jer za edit hocemo da se prethodni post koji editujemo obrise a ostane sad ovo novo editovano
 			.then(res => {
 				// console.log(res)
 				vuexContext.commit('EDIT_POST', createdPost)
