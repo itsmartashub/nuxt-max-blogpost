@@ -43,9 +43,13 @@ export default {
 	// 	})
 	// },
 
+	middleware: 'log', // ovo je onaj log.js fajl u middlewareu. i kad god ucitamo ovaj /pages/posts/index.vue stranicu middleware se okine tj ta f-ja unutra. takodje mozemo dodati middleware da se okida i u layout ili ako zelimo da ga koristimo na svim rutama. hajde prvo da attachujemo na layour/default.vue. a ako zelimo za sve rute da dodamo, onda idemo u nuxt.config.js i za router property dodamo middleware: 'log'
+
 	computed: {
 		loadedPosts() {
 			return this.$store.getters.LOADED_POSTS
+			// return this.$store.getters['post/LOADED_POSTS']
+
 		}
 	},
 

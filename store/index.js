@@ -71,11 +71,13 @@
 //? MODULE VUEX!
 import Vuex from 'vuex'
 import postModule from './modules/post'
+import authModule from './modules/auth'
 
 const createStore = () => {
 	return new Vuex.Store({
 		modules: {
-			post: postModule
+			post: postModule,
+			auth: authModule
 		}
 	})
 }

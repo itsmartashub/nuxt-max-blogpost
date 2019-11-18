@@ -67,7 +67,8 @@ export default {
   },
 
 	env: { //* da mi stavimo okruzenje u kom smo
-		baseUrl: process.env.BASE_URL || 'https://nuxt-max-blogpost.firebaseio.com' // ovo je adresa iz post.js iz nuxtServerInit, i tamo sada samo satavimo process.env.baseUrl, ali valjda mozemo i svugde gde je ta adresa, recimo pages/posts/_id/index.vue, i u pages/admin/_postId/index.vue
+		baseUrl: process.env.BASE_URL || 'https://nuxt-max-blogpost.firebaseio.com', // ovo je adresa iz post.js iz nuxtServerInit, i tamo sada samo satavimo process.env.baseUrl, ali valjda mozemo i svugde gde je ta adresa, recimo pages/posts/_id/index.vue, i u pages/admin/_postId/index.vue
+		fbAPIkey: 'AIzaSyB5ikwuk-7PmRSVoL-dxu8Oy5wZeCzeRTw'
 	},
 
 	// rootDir: '/'
@@ -88,5 +89,9 @@ export default {
 		pageTransition: {
 			name: 'fade',
 			mode: 'out-in'
+		},
+
+		router: { // ako hocemo da dodamo middle ware za svaku rutu
+			middleware: 'log'
 		}
 }

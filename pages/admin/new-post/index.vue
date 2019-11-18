@@ -13,6 +13,7 @@ import AdminPostForm from '@/components/Admin/AdminPostForm'
 
 export default {
 	layout: 'admin',
+	middleware: ['check-auth', 'auth'], // ako hocemo da dodamo vise middleware mozemo u nizu ovako
 	
 	components: { AdminPostForm },
 
@@ -31,6 +32,7 @@ export default {
 		// } 
 
 		onSubmitted(postData) { // primam postData iz pages/new-post/index.vue iz onSave() metoda, to mu dodje onaj drugi argument iz this.$emit tj this.editedPost
+			// this.$store.dispatch('post/ADD_POST', postData)
 			this.$store.dispatch('ADD_POST', postData)
 				.then(() => { // ovo mozemo ovako jer smo u actions za ADD_POST ispred axios stavili RETURN pa on vraca Promise, kad je gotov i onda mozemo da chainujemo dalje akcije recimo ovo za pushovanje na admin url
 					this.$router.push('/admin')

@@ -17,12 +17,13 @@
 
 export default {
 	layout: 'admin',
-	
+	middleware: ['check-auth', 'auth'], //! bitan je redosled
 	// components: { PostList, AppButton },
 
 	computed: {
 		loadedPosts() {
 			return this.$store.getters.LOADED_POSTS
+			// return this.$store.getters['post/LOADED_POSTS']
 		}
 	}
 }

@@ -13,10 +13,10 @@
 	import TheSidenav from '@/components/Navigation/TheSidenav'
 
 	export default {
-		components: {
-			TheHeader,
-			TheSidenav
-		},
+		// middleware: 'log',
+
+		components: { TheHeader, TheSidenav },
+
 		data() {
 			return {
 				displaySidenav: false

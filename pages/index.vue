@@ -23,6 +23,7 @@ export default {
 	computed: {
 		loadedPosts() {
 			return this.$store.getters.LOADED_POSTS
+			// return this.$store.getters['post/LOADED_POSTS']
 		}
 	},
 

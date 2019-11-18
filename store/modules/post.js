@@ -21,7 +21,7 @@ const mutations = {
 	
 	EDIT_POST(state, editedPost) {
 		// replace existing post with updated version, dakle prvo moramo da nadjemo index postojeceg posta i loadedPosts nizu:
-		const postIndex = state.loadedPosts.findIndex(post => post.id === editedPost)
+		const postIndex = state.loadedPosts.findIndex(post => post.id === editedPost.id)
 		state.loadedPosts[postIndex] = editedPost // i kad smo nasli u loadedPosts nizu post sa trazecim indexom, onda ga selektujemo sa state.loadedPosts[postIndex] i stavljamo da je jednak ovom editovanom postu
 
 	}
@@ -91,7 +91,7 @@ const actions = {
 		}
 		
 		return this.$axios
-			.$post('/posts.json', createdPost) // kopiramo adresu iz firebase iz realtime databse i dodajemo na kraju ime node-a koje zelimo, recimo posts, ali moramo i da dodamo ekstenziju .json. drugi argument su podaci koje zelimo da posaljemo ovim rikvestom na tu adresu. onda imamo then() blok jer axios vraca Promise.
+			.$post(`/posts.json?auth=${vuexContext.rootState.auth.token}`, createdPost) // kopiramo adresu iz firebase iz realtime databse i dodajemo na kraju ime node-a koje zelimo, recimo posts, ali moramo i da dodamo ekstenziju .json. drugi argument su podaci koje zelimo da posaljemo ovim rikvestom na tu adresu. onda imamo then() blok jer axios vraca Promise.
 				// dodajemo spread operator kod postData da bismo mogli dodati novi obj tj updatedDate: new Date()
 			.then(data => {
 				// console.log(res)
@@ -102,13 +102,15 @@ const actions = {
 
 	},
 
-	EDIT_POST(vuexContext, editedPost) {
+	EDIT_POST(vuexContext, editedPost) { //? sada kada smo dodali authentication, ne mozemo da editujemo post, 401 error tj da nismo authorizovani. da bi to prepravili moramo ovde da attachujemo token (https://firebase.google.com/docs/database/rest/auth), moramo dodati taj auth parametar u odlazeci rikvest url
+		// console.log(vuexContext.rootState.auth.token)
+
 		const createdPost = {
 			...editedPost, // ovo je iz forme AdminPostForm
 			updatedDate: new Date()
 		}
 		return this.$axios
-			.$put(`/posts/${editedPost.id}.json`, createdPost) // saljemo put rikvest a ne post jer za edit hocemo da se prethodni post koji editujemo obrise a ostane sad ovo novo editovano
+			.$put(`/posts/${editedPost.id}.json?auth=${vuexContext.rootState.auth.token}`, createdPost) // saljemo put rikvest a ne post jer za edit hocemo da se prethodni post koji editujemo obrise a ostane sad ovo novo editovano
 			.then(res => {
 				// console.log(res)
 				vuexContext.commit('EDIT_POST', createdPost)
