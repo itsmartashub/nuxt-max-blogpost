@@ -40,22 +40,21 @@ const actions = {
 
 					//? cuvanje tokena na klajent sajd tj u LS-u
 					localStorage.setItem('token', result.idToken) // da sacuvamo token u LS
-					localStorage.setItem('token_expiration', new Date().getTime() + result.expiresIn * 1000) // expiresIn je jedinica u sekundama, al ovde nam to ne znaci nista, ovde nam treba timestamp. zato dodajemo new Date().getTime() koji prikazuje trenutno vreme u milisekundama, zato mnozimo result.expiresIn sa 1000 da dobijemo takodje milisekunda, i onda sabiremo ovde dve vrednosti i dobijamo vrednost tj vreme kada ce ovaj token isteci
+					localStorage.setItem('token_expiration', new Date().getTime() + Number.parseInt(result.expiresIn) * 1000) // expiresIn je jedinica u sekundama, al ovde nam to ne znaci nista, ovde nam treba timestamp. zato dodajemo new Date().getTime() koji prikazuje trenutno vreme u milisekundama, zato mnozimo result.expiresIn sa 1000 da dobijemo takodje milisekunda, i onda sabiremo ovde dve vrednosti i dobijamo vrednost tj vreme kada ce ovaj token isteci
 
 					//? cuvanje tokena na server sajd tj u Cookie (npm install --save js-cookie). i ideja je da zgrabio token tj usera iz kukija, umesto iz LS-a, ukoliko je kod pokrenut na serveru, zato nam za INIT_AUTH za drugi argument treba isServer i ako je tamo isServer true, tj stavicemo req jer samo ako je req okinut zelim da se onaj kod if(req) okine
 					Cookie.set('jwt', result.idToken)
-					Cookie.set('expiration_date', new Date().getTime() + result.expiresIn * 1000)
+					Cookie.set('expiration_date', new Date().getTime() + Number.parseInt(result.expiresIn) * 1000) //* morali smo i gore i ovde da stavimo Number.parseInt() da bi konvertovali sve u brojeve, jer bio je bag da je jedan timestamp veceg length od drugog jer jedan je broj bas Number a drugi je bio String (jer je result.expiresIn bio zapravo string,i kad saberemo new Date().getTime() koji je Number sa result.expiresIn koji je String, dobijemo string)
 
-					vuexContext.dispatch('SET_LOGOUT_TIMER', result.expiresIn * 1000) // ovo expiresIn je sastavni deo fb-a, vreme isteka tokena u sekundama, a p	osto tajmer zahteva u milisekundama, pomnozicemo sa 1000
+					// vuexContext.dispatch('SET_LOGOUT_TIMER', result.expiresIn * 1000) // ovo expiresIn je sastavni deo fb-a, vreme isteka tokena u sekundama, a p	osto tajmer zahteva u milisekundama, pomnozicemo sa 1000
 				}).catch(e => console.log(e))
 	},
 
-	SET_LOGOUT_TIMER(vuexContext, duration) { // ocekujem da prihvatim duration tj trajanje kada token istice
-		setTimeout(() => { // ovde okidam neki kod NAKON duration
-			vuexContext.commit('CLEAR_TOKEN') // dakle cistim token NAKON duration
-		}, duration);
-
-	},
+	// SET_LOGOUT_TIMER(vuexContext, duration) { // ocekujem da prihvatim duration tj trajanje kada token istice
+	// 	setTimeout(() => { // ovde okidam neki kod NAKON duration
+	// 		vuexContext.commit('CLEAR_TOKEN') // dakle cistim token NAKON duration
+	// 	}, duration);
+	// }, //? ovo vise nece f-ti kako ocekujemo jer ako inicijalizujemo nas state na serveru preko kukija onda ce ovo biti executovano na serveru a to nama nije tamo od pomoci, ne radi sa store-om koji smo pokrenuli u browseru (na clientu). Drugi i bolji nacin za cekiranje validnosti tokena jeste da ne koristimo SET_LOGOUT_TIMER tamo gore i obrisemo tamo gde smo ga dispetchovali. umesto toga morzemo da to cekiramo preko check-auth.js, jer check-auth okida INIT_AUTH na svakoj ruti gde je potreban, dakle okidamo INIT_AUTH malte ne sve vreme cak i na klajentu, dakle konstanto cekiramo expiration_date, i ako naidjemo da nemamo/ne pronalazimo expiration_date onda ne bi trebalo da vratimo return tamo u INIT_AUTH gde je if (new Date().getTime() > +expiration_date || !token) vec bismo trebali da commitujemo CLEAR_TOKEN metod, i isto to bi trebali da uradimo za slucaj kada fetchujemo token iz kukija, tamo cak ni ne proveravamo samo getujemo expiration_date, tako da cemo citav taj if (new Date().getTime() > +expiration_date || !token) da premestimo posle elsa
 
 	INIT_AUTH(vuexContext, req) {
 		let token
@@ -85,18 +84,31 @@ const actions = {
 			// u init auth cekiramo nas ls, proveravamo da l ima u njemu sacuvan token, ako ima cuvamo ga u promenljivoj token, ako ne onda je undefined
 			token = localStorage.getItem('token') // ovo ce biti undefined ako nema tokena ili ce biti token koji smo sacuvali posl x
 			expiration_date =  localStorage.getItem('token_expiration')
+		}
 
-			// i sa ove dve vrednosti mogu da cekiram da li trenutno vreme vece od tog vremena, ako jeste onda je token istekao
-			if (new Date().getTime() > +expiration_date || !token) { // ako je nesto drugo slucaj tipa da nema tokena (!token) zelim da vratim da nemamo token. sa + ispred expiration_date konvertujem ovaj String u Number
-				return // ako je token istekao onda vrati i nista vise/dalje ne radi
-			}
+		// i sa ove dve vrednosti mogu da cekiram da li trenutno vreme vece od tog vremena, ako jeste onda je token istekao
+		if (new Date().getTime() > +expiration_date || !token) { // ako je nesto drugo slucaj tipa da nema tokena (!token) zelim da vratim da nemamo token. sa + ispred expiration_date konvertujem ovaj String u Number
+			console.log('No token or invalid token')
+			vuexContext.dispatch('LOGOUT')
+			return // ako je token istekao onda vrati i nista vise/dalje ne radi
 		}
 
 		// u suprotonom, ako ima tokena:
-		vuexContext.dispatch('SET_LOGOUT_TIMER', +expiration_date - new Date().getTime()) //? vreme kad istice token (dakle ono iz buducnosti) oduzmemo sadasnje vreme, ovo je u milisekundama. stavljam + ispred expiration_date da bi ga konvertovali u Number!!!
+		// vuexContext.dispatch('SET_LOGOUT_TIMER', +expiration_date - new Date().getTime()) //? vreme kad istice token (dakle ono iz buducnosti) oduzmemo sadasnje vreme, ovo je u milisekundama. stavljam + ispred expiration_date da bi ga konvertovali u Number!!!
 		vuexContext.commit('SET_TOKEN', token)
 		
-	} //? i nas cilj je da executujemo INIT_AUTH da fetchuje token iz LS-a kad god dispatchujemo ovaj action, i za to zelimo da koristimo middleware u check-auth.js
+	}, //? i nas cilj je da executujemo INIT_AUTH da fetchuje token iz LS-a kad god dispatchujemo ovaj action, i za to zelimo da koristimo middleware u check-auth.js
+
+	LOGOUT(vuexContext) {
+		vuexContext.commit('CLEAR_TOKEN')
+		Cookie.remove('jwt')
+		Cookie.remove('expiration_date')
+
+		if(process.client) {
+			localStorage.removeItem('token')
+			localStorage.removeItem('token_expiration')
+		}
+	}
 }
 
 const authModule = {
