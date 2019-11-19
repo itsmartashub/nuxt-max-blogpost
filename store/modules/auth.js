@@ -83,11 +83,16 @@ const actions = {
 					.split(';')
 					.find(c => c.trim().startsWith('expiration_date='))
 					.split('=')[1] // isto je to sto smo mi setovali za Cookie expiration_date, mogli smo i expirationDate i expDate, kako god, al kako smo setovali, tako i ovde pozivam
-		} else { //? LS 
+		} else if (process.client) { //? LS 
 			// u init auth cekiramo nas ls, proveravamo da l ima u njemu sacuvan token, ako ima cuvamo ga u promenljivoj token, ako ne onda je undefined
 			token = localStorage.getItem('token') // ovo ce biti undefined ako nema tokena ili ce biti token koji smo sacuvali posl x
 			expiration_date =  localStorage.getItem('token_expiration')
+			
 		}
+		//  else { // ili ovo ne stavimo i onda bude undefined (jer smo na pocetku deklarisali ove promenljive)
+		// 	token = null
+		// 	expiration_date = null
+		// }
 
 		// i sa ove dve vrednosti mogu da cekiram da li trenutno vreme vece od tog vremena, ako jeste onda je token istekao
 		if (new Date().getTime() > +expiration_date || !token) { // ako je nesto drugo slucaj tipa da nema tokena (!token) zelim da vratim da nemamo token. sa + ispred expiration_date konvertujem ovaj String u Number

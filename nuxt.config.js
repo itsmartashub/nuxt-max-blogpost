@@ -1,4 +1,5 @@
 const bodyParser = require('body-parser')
+const axios = require('axios')
 
 export default {
   mode: 'universal', //* ako zelimo prerender capabilities onda stavljamo 'universal', ako ne, onda 'SPA'
@@ -99,5 +100,24 @@ export default {
 		serverMiddleware: [ // ovo ne trba da se mesa sa onim nasim middleware. serverMiddleware je kolekcija node i express kompatibilne middleware koje ce biti executovane prajer (WTF) to the nuxt rendering process. dakle ovde mozemo da pokrenemo bilo koji express middleware koji zelimo da se pokrene PRVI ukljucujuci nas licni. pa hajmo da kreiramo novi folder, recimo api, i njemu index.js u kom cemo napisati nas licni express kod, a pre toga hajde prvo d ainstaliramo Express npm install --save express
 			bodyParser.json(),
 			'~/api' // a index.js ne treba jer automatski tarzi index.js
-		]
+		],
+
+		generate: {
+			routes: function() {
+				return axios.get('https://nuxt-max-blogpost.firebaseio.com/posts.json').then(res => {
+					// return [] // vracamo sve liste rutea koje zelimo da e renderuju
+					const arrRoutes = []
+					for(const key in res.data) {
+						arrRoutes.push({
+							route: `/posts/${key}`,
+							payload: { postData: res.data[key]}
+						})
+					}
+					return arrRoutes
+				})
+				// return [
+				// 	'/posts/-Ltphv4xcpv46nTI_ppP'
+				// ]
+			}
+		}
 }

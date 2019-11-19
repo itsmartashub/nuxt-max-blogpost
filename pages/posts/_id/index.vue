@@ -38,6 +38,12 @@ export default {
 	// }
 
 	asyncData(context) {
+		if(context.payload) { // chekiramo da li context ima payload properrty (onaj koji smo setovali u nuxt.config.js u generate) i ako je to slucaj zelim da vratim nove data. npm, ali ovi mopet pregenerisemo sve fajlove samo sa manje http rikvestova 
+			return {
+				loadedPost: context.payload.postData
+			}
+		}
+
 		return context.app.$axios.$get(`/posts/${context.params.id}.json`)
 			.then(data => { // preko axios modules imamo samo data, a ne res pa u njemu data
 				return {
