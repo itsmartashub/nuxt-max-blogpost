@@ -47,6 +47,9 @@ const actions = {
 					Cookie.set('expiration_date', new Date().getTime() + Number.parseInt(result.expiresIn) * 1000) //* morali smo i gore i ovde da stavimo Number.parseInt() da bi konvertovali sve u brojeve, jer bio je bag da je jedan timestamp veceg length od drugog jer jedan je broj bas Number a drugi je bio String (jer je result.expiresIn bio zapravo string,i kad saberemo new Date().getTime() koji je Number sa result.expiresIn koji je String, dobijemo string)
 
 					// vuexContext.dispatch('SET_LOGOUT_TIMER', result.expiresIn * 1000) // ovo expiresIn je sastavni deo fb-a, vreme isteka tokena u sekundama, a p	osto tajmer zahteva u milisekundama, pomnozicemo sa 1000
+
+					//* EXPRESS API SERVERMIDDLEWARE
+					return this.$axios.$post('http://localhost:3000/api/track-data', { data: 'Authentifikacij!' })
 				}).catch(e => console.log(e))
 	},
 
